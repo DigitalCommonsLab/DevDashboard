@@ -1,0 +1,21 @@
+# Configuration for DevDashboard
+ado:
+  organization: "https://dev.azure.com/your-org"
+  project: "your-project"
+  backlog_query_id: "00000000-0000-0000-0000-000000000000"  # ID of backlog query
+  token_env: "ADO_PAT"  # environment variable containing personal access token
+
+kusto:
+  cluster: "https://yourcluster.kusto.windows.net"
+  database: "yourdatabase"
+  client_id_env: "KUSTO_CLIENT_ID"
+  client_secret_env: "KUSTO_CLIENT_SECRET"
+  tenant_id_env: "KUSTO_TENANT_ID"
+  icm_query: |
+    // Sample Kusto query for IcMs
+    IcMTable
+    | where ServiceTree == '{service_tree}' and Status == 'Active'
+  s360_query: |
+    // Sample Kusto query for S360 items
+    S360Table
+    | where Service == '{service_tree}' and State == 'New'
