@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Dev Dashboard</title>
+</head>
+<body class="h-full bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+<div class="container mx-auto p-4">
+    <div class="flex justify-between items-center mb-4">
+        <h1 class="text-2xl font-bold">Dev Dashboard</h1>
+        <label class="flex items-center cursor-pointer">
+            <input id="darkToggle" type="checkbox" class="hidden">
+            <span class="mr-2">Dark Mode</span>
+            <span class="w-10 h-5 flex items-center bg-gray-300 rounded-full p-1">
+                <span class="toggle-dot bg-white w-4 h-4 rounded-full shadow"></span>
+            </span>
+        </label>
+    </div>
+    <form method="get" class="mb-4">
+        <input name="service_tree" value="{{ service_tree }}" class="border p-2 rounded"/>
+        <button type="submit" class="ml-2 px-4 py-2 bg-blue-600 text-white rounded">Refresh</button>
+    </form>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        <div class="p-4 bg-white dark:bg-gray-800 rounded shadow">
+            <div class="text-gray-500">Open Issues</div>
+            <div class="text-2xl">{{ metrics.open_issues }}</div>
+        </div>
+        <div class="p-4 bg-white dark:bg-gray-800 rounded shadow">
+            <div class="text-gray-500">Alerts</div>
+            <div class="text-2xl">{{ metrics.alerts }}</div>
+        </div>
+        <div class="p-4 bg-white dark:bg-gray-800 rounded shadow">
+            <div class="text-gray-500">Kusto Queries</div>
+            <div class="text-2xl">{{ metrics.kusto_queries }}</div>
+        </div>
+        <div class="p-4 bg-white dark:bg-gray-800 rounded shadow">
+            <div class="text-gray-500">ADO Projects</div>
+            <div class="text-2xl">{{ metrics.ado_projects }}</div>
+        </div>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+        <div class="p-4 bg-white dark:bg-gray-800 rounded shadow">
+            <canvas id="issuesChart"></canvas>
+        </div>
+        <div class="p-4 bg-white dark:bg-gray-800 rounded shadow">
+            <canvas id="alertsChart"></canvas>
+        </div>
+    </div>
+    <div class="p-4 bg-white dark:bg-gray-800 rounded shadow">
+        <h2 class="text-xl mb-2">Kusto Query History</h2>
+        <table class="min-w-full text-left">
+            <thead>
+            <tr>
+                <th class="py-2">Query</th>
+                <th class="py-2">Status</th>
+                <th class="py-2">Time</th>
+                <th class="py-2">Duration</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for q in query_history %}
+            <tr class="border-t border-gray-200 dark:border-gray-700">
+                <td class="py-1">{{ q.query }}</td>
+                <td class="py-1">{{ q.status }}</td>
+                <td class="py-1">{{ q.time }}</td>
+                <td class="py-1">{{ q.duration }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="p-4 bg-white dark:bg-gray-800 rounded shadow mt-4">
+        <table class="min-w-full text-left">
+            <thead>
+            <tr>
+                <th class="py-2">ID</th>
+                <th class="py-2">Title</th>
+                <th class="py-2">State</th>
+                <th class="py-2">Source</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for t in tasks %}
+            <tr class="border-t border-gray-200 dark:border-gray-700">
+                <td class="py-1">{{ t.id }}</td>
+                <td class="py-1">{{ t.title }}</td>
+                <td class="py-1">{{ t.state }}</td>
+                <td class="py-1">{{ t.source }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+const toggle = document.getElementById('darkToggle');
+toggle.addEventListener('change', () => {
+    document.documentElement.classList.toggle('dark');
+});
+const issuesCtx = document.getElementById('issuesChart');
+new Chart(issuesCtx, {type:'line', data:{labels: {{ chart.labels|safe }}, datasets:[{label:'Issues', data: {{ chart.issue_counts|safe }}, borderColor:'rgb(75, 192, 192)'}]}});
+const alertsCtx = document.getElementById('alertsChart');
+new Chart(alertsCtx, {type:'bar', data:{labels: {{ chart.labels|safe }}, datasets:[{label:'Alerts', data: {{ chart.alert_counts|safe }}, backgroundColor:'rgb(255, 99, 132)'}]}});
+</script>
+</body>
+</html>
